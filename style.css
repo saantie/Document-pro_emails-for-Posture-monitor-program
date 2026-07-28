@@ -87,6 +87,21 @@ input:focus, select:focus {
 
 .error-text { color: var(--danger); font-size: 0.9em; margin: 4px 0 0; }
 
+.login-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 16px 0;
+  color: var(--text-muted);
+  font-size: 0.85em;
+}
+.login-divider::before, .login-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
 /* ---------- แดชบอร์ด ---------- */
 .topbar {
   display: flex;
