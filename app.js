@@ -6,7 +6,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
 import {
   getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged,
-  GoogleAuthProvider, signInWithRedirect, getRedirectResult,
+  GoogleAuthProvider, signInWithPopup,
 } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
 import {
   getFirestore, collection, getDocs, doc, setDoc, deleteDoc, serverTimestamp, Timestamp,
@@ -55,6 +55,13 @@ function friendlyAuthError(err) {
   if (code.includes("account-exists-with-different-credential")) {
     return "อีเมลนี้เคยสมัครด้วยวิธีอื่นไว้แล้ว (เช่นรหัสผ่าน) กรุณาล็อกอินด้วยวิธีเดิม";
   }
+  if (code.includes("popup-blocked")) {
+    return "เบราว์เซอร์บล็อกหน้าต่างล็อกอิน — กรุณาอนุญาตป๊อปอัพสำหรับเว็บนี้แล้วลองใหม่ " +
+           "(ปกติมีไอคอนแจ้งเตือนขึ้นที่แถบที่อยู่ด้านบน กดอนุญาตแล้วกดปุ่มนี้อีกครั้ง)";
+  }
+  if (code.includes("popup-closed-by-user") || code.includes("cancelled-popup-request")) {
+    return null; // ผู้ใช้ปิดหน้าต่าง Google เอง ไม่ใช่ error ที่ต้องโชว์
+  }
   return "เข้าสู่ระบบไม่สำเร็จ กรุณาลองใหม่";
 }
 
@@ -85,14 +92,6 @@ function showLoginError(err) {
   loginError.hidden = false;
 }
 
-// เช็คผลลัพธ์ตอนเบราว์เซอร์เด้งกลับมาจากหน้า Google (ถ้ามี) — onAuthStateChanged ด้านบนจะ fire ให้
-// เองตอน sign-in สำเร็จอยู่แล้ว แต่ error จากขั้นตอน redirect (เช่นอีเมลนี้เคยสมัครด้วยรหัสผ่านไว้แล้ว)
-// จะโผล่มาที่นี่เท่านั้น ไม่ผ่าน onAuthStateChanged
-getRedirectResult(auth).catch((err) => {
-  console.error(err);
-  showLoginError(err);
-});
-
 loginForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   loginError.hidden = true;
@@ -105,11 +104,18 @@ loginForm.addEventListener("submit", async (e) => {
   }
 });
 
-document.getElementById("btn-google-login").addEventListener("click", () => {
-  // ใช้ redirect ไม่ใช่ popup — popup โดนตัวบล็อกป๊อปอัพของเบราว์เซอร์/ส่วนขยายบล็อกได้ง่ายมาก
-  // (เจอ auth/popup-blocked จริงตอนทดสอบ) redirect เชื่อถือได้กว่าในทุกเบราว์เซอร์
-  // หน้าจะเปลี่ยนไปหน้า Google แล้วเด้งกลับมาเอง — ผลลัพธ์เช็คที่ getRedirectResult() ด้านบน
-  signInWithRedirect(auth, new GoogleAuthProvider());
+document.getElementById("btn-google-login").addEventListener("click", async () => {
+  // ใช้ popup ไม่ใช่ redirect — เพจนี้ host อยู่คนละโดเมน (GitHub Pages) กับ Firebase authDomain
+  // (firebaseapp.com) ซึ่ง redirect flow ต้องพึ่ง storage ข้ามโดเมนที่เบราว์เซอร์รุ่นใหม่บล็อกไว้
+  // เป็นปัญหาที่ยืนยันแล้วจากเอกสารทางการของ Firebase (สำหรับแอปที่ไม่ได้ host บน Firebase Hosting
+  // แนะนำให้ใช้ popup โดยตรง — https://firebase.google.com/docs/auth/web/redirect-best-practices)
+  loginError.hidden = true;
+  try {
+    await signInWithPopup(auth, new GoogleAuthProvider());
+  } catch (err) {
+    console.error(err);
+    showLoginError(err);
+  }
 });
 
 document.getElementById("btn-logout").addEventListener("click", () => signOut(auth));
