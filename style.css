@@ -1,0 +1,179 @@
+:root {
+  --bg: #F8FAFC;
+  --card-bg: #FFFFFF;
+  --text: #1E293B;
+  --text-muted: #64748B;
+  --border: #E2E8F0;
+  --primary: #16A34A;
+  --primary-hover: #15803D;
+  --danger: #EF4444;
+  --warn: #F59E0B;
+  --warn-bg: #FEF3C7;
+  --expired-bg: #FEE2E2;
+  --ok-bg: #F0FDF4;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", "Sarabun", -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.screen { min-height: 100vh; }
+[hidden] { display: none !important; }
+
+.muted { color: var(--text-muted); font-size: 0.9em; }
+.center { text-align: center; }
+
+/* ---------- ล็อกอิน ---------- */
+#login-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.login-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 32px;
+  width: 100%;
+  max-width: 380px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+}
+.login-card h1 { margin: 0 0 4px; font-size: 1.3em; }
+.login-card form { margin-top: 20px; display: flex; flex-direction: column; gap: 14px; }
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.9em;
+  font-weight: 600;
+}
+input, select {
+  font: inherit;
+  padding: 9px 11px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--text);
+}
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.btn {
+  font: inherit;
+  font-weight: 600;
+  padding: 9px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--text);
+  cursor: pointer;
+}
+.btn:hover { background: #F1F5F9; }
+.btn-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+.btn-primary:hover { background: var(--primary-hover); }
+.btn-ghost { background: transparent; }
+.btn-block { width: 100%; }
+.btn-small { padding: 5px 10px; font-size: 0.85em; }
+.btn-danger-text { color: var(--danger); }
+
+.error-text { color: var(--danger); font-size: 0.9em; margin: 4px 0 0; }
+
+/* ---------- แดชบอร์ด ---------- */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--card-bg);
+}
+.topbar h1 { margin: 0; font-size: 1.3em; }
+.topbar-actions { display: flex; align-items: center; gap: 10px; }
+
+.banner {
+  margin: 16px 24px 0;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 0.9em;
+}
+.banner-error { background: var(--expired-bg); color: #991B1B; }
+
+.summary-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  padding: 16px 24px;
+}
+.summary-pill {
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 0.9em;
+  font-weight: 600;
+}
+.pill-expired { background: var(--expired-bg); color: #991B1B; }
+.pill-warn { background: var(--warn-bg); color: #92400E; }
+.pill-ok { background: var(--ok-bg); color: #166534; }
+
+.table-wrap { padding: 0 24px 32px; overflow-x: auto; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--card-bg);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+th, td {
+  text-align: left;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.92em;
+  white-space: nowrap;
+}
+th { background: #F1F5F9; font-weight: 600; color: var(--text-muted); }
+tr.row-expired td { background: var(--expired-bg); }
+tr.row-warn td { background: var(--warn-bg); }
+tr.row-broken td { background: #F1F5F9; font-style: italic; color: var(--text-muted); }
+
+.row-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+/* ---------- modal ---------- */
+.modal-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  z-index: 10;
+}
+.modal {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 28px;
+  width: 100%;
+  max-width: 440px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.modal h2 { margin-top: 0; }
+.modal form { display: flex; flex-direction: column; gap: 14px; }
+.quick-dates { display: flex; align-items: center; gap: 8px; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px; }
+
+@media (max-width: 640px) {
+  .topbar { flex-direction: column; }
+  .table-wrap { padding: 0 12px 24px; }
+  .summary-row { padding: 16px 12px; }
+}

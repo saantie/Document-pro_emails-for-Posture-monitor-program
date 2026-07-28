@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>จัดการสมาชิกโปร — 8Hrs Posture Monitor</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ========== หน้าล็อกอิน ========== -->
+  <section id="login-screen" class="screen">
+    <div class="login-card">
+      <h1>🔒 จัดการสมาชิกโปร</h1>
+      <p class="muted">8Hrs Posture Monitor — สำหรับผู้ดูแลเท่านั้น</p>
+      <form id="login-form">
+        <label>อีเมล
+          <input type="email" id="login-email" autocomplete="username" required>
+        </label>
+        <label>รหัสผ่าน
+          <input type="password" id="login-password" autocomplete="current-password" required>
+        </label>
+        <button type="submit" class="btn btn-primary btn-block">เข้าสู่ระบบ</button>
+      </form>
+      <p id="login-error" class="error-text" hidden></p>
+    </div>
+  </section>
+
+  <!-- ========== หน้าแดชบอร์ด ========== -->
+  <section id="dashboard-screen" class="screen" hidden>
+    <header class="topbar">
+      <div>
+        <h1>จัดการสมาชิกโปร</h1>
+        <p class="muted">8Hrs Posture Monitor</p>
+      </div>
+      <div class="topbar-actions">
+        <span id="whoami" class="muted"></span>
+        <button id="btn-refresh" class="btn btn-ghost" title="โหลดข้อมูลใหม่">🔄 รีเฟรช</button>
+        <button id="btn-logout" class="btn btn-ghost">ออกจากระบบ</button>
+      </div>
+    </header>
+
+    <div id="load-error" class="banner banner-error" hidden></div>
+
+    <div class="summary-row">
+      <div class="summary-pill pill-expired">
+        <span id="count-expired">0</span> คนหมดอายุแล้ว
+      </div>
+      <div class="summary-pill pill-warn">
+        <span id="count-warn">0</span> คนใกล้หมดอายุ (≤7 วัน)
+      </div>
+      <div class="summary-pill pill-ok">
+        <span id="count-ok">0</span> คนปกติ
+      </div>
+      <button id="btn-add" class="btn btn-primary" style="margin-left:auto">+ เพิ่มลูกค้าใหม่</button>
+    </div>
+
+    <div class="table-wrap">
+      <table id="customers-table">
+        <thead>
+          <tr>
+            <th>อีเมล</th>
+            <th>แพ็กเกจ</th>
+            <th>สถานะ</th>
+            <th>วันหมดอายุ</th>
+            <th>เหลือเวลา</th>
+            <th>จัดการ</th>
+          </tr>
+        </thead>
+        <tbody id="customers-tbody">
+          <tr><td colspan="6" class="muted center">กำลังโหลด...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ========== หน้าต่างเพิ่ม/แก้ไขลูกค้า ========== -->
+  <div id="edit-modal" class="modal-backdrop" hidden>
+    <div class="modal">
+      <h2 id="modal-title">เพิ่มลูกค้าใหม่</h2>
+      <form id="edit-form">
+        <label>อีเมลลูกค้า (ต้องตรงกับอีเมลที่ลูกค้าใช้ล็อกอินในแอป)
+          <input type="email" id="field-email" required>
+        </label>
+        <label>แพ็กเกจ
+          <select id="field-plan">
+            <option value="monthly">รายเดือน</option>
+            <option value="yearly">รายปี</option>
+            <option value="manual">อื่นๆ / ไม่ระบุ</option>
+          </select>
+        </label>
+        <label>ช่องทางรับเงิน
+          <select id="field-source">
+            <option value="promptpay">พร้อมเพย์</option>
+            <option value="paypalme">PayPal.Me</option>
+            <option value="manual">อื่นๆ</option>
+          </select>
+        </label>
+        <label>สถานะ
+          <select id="field-status">
+            <option value="active">active (ใช้งานได้)</option>
+            <option value="cancelled">cancelled (ยกเลิกแล้ว)</option>
+          </select>
+        </label>
+        <label>วันหมดอายุ (สิทธิ์จะหมดตอนสิ้นวันนี้ ตามเวลาเครื่องคุณ)
+          <input type="date" id="field-expires" required>
+        </label>
+        <div class="quick-dates">
+          <span class="muted">ตั้งเร็ว:</span>
+          <button type="button" class="btn btn-ghost btn-small" data-days="30">+30 วัน</button>
+          <button type="button" class="btn btn-ghost btn-small" data-days="365">+365 วัน</button>
+          <button type="button" class="btn btn-ghost btn-small" data-days="7">+7 วัน</button>
+        </div>
+        <p id="modal-error" class="error-text" hidden></p>
+        <div class="modal-actions">
+          <button type="button" id="btn-cancel-modal" class="btn btn-ghost">ยกเลิก</button>
+          <button type="submit" class="btn btn-primary">บันทึก</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
