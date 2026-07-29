@@ -36,33 +36,47 @@ function formatThaiDate(date) {
   return `${date.getDate()} ${THAI_MONTHS[date.getMonth()]} ${date.getFullYear() + 543}`;
 }
 
-function friendlyAuthError(err) {
-  // ไม่โชว์ error ดิบจาก Firebase ให้ผู้ใช้เห็น (เช่น auth/invalid-credential) — แปลเป็นไทยที่เข้าใจง่าย
+function friendlyAuthError(err, context) {
+  // context = "google" | "password" — ต้องแยก เพราะข้อความแบบ "รหัสผ่านไม่ถูกต้อง" ไม่มีความหมายเลย
+  // ตอนล็อกอินด้วย Google (เคยเป็นบั๊กจริง: กด Google แล้วขึ้นว่ารหัสผ่านผิด งงกันทั้งคู่)
+  //
+  // หน้านี้ต่างจากตัวแอป 8Hrs ตรงที่มีผู้ใช้คนเดียวคือผู้ดูแลเอง จึง **แนบโค้ด error จริงไว้ท้ายข้อความ**
+  // ด้วย เพื่อให้วินิจฉัยปัญหาได้ (ในตัวแอปที่ลูกค้าใช้ ห้ามโชว์โค้ดดิบ — ดู CLAUDE.md)
   const code = err && err.code ? err.code : "";
-  if (code.includes("invalid-credential") || code.includes("wrong-password") || code.includes("user-not-found")) {
-    return "อีเมลหรือรหัสผ่านไม่ถูกต้อง";
-  }
-  if (code.includes("too-many-requests")) {
-    return "ลองผิดหลายครั้งเกินไป กรุณารอสักครู่แล้วลองใหม่";
-  }
-  if (code.includes("network-request-failed")) {
-    return "ต่ออินเทอร์เน็ตไม่ได้ กรุณาลองใหม่";
-  }
-  if (code.includes("unauthorized-domain")) {
-    return "โดเมนนี้ยังไม่ได้รับอนุญาตให้ล็อกอินด้วย Google " +
-           "(ต้องเพิ่มใน Firebase Console > Authentication > Settings > Authorized domains ก่อน)";
-  }
-  if (code.includes("account-exists-with-different-credential")) {
-    return "อีเมลนี้เคยสมัครด้วยวิธีอื่นไว้แล้ว (เช่นรหัสผ่าน) กรุณาล็อกอินด้วยวิธีเดิม";
+  const tag = code ? ` [${code}]` : "";
+
+  // ผู้ใช้ปิดหน้าต่าง Google เอง / กดซ้ำจนอันเก่าถูกยกเลิก — ไม่ใช่ error ที่ต้องรบกวน
+  if (code.includes("popup-closed-by-user") || code.includes("cancelled-popup-request")) {
+    return null;
   }
   if (code.includes("popup-blocked")) {
     return "เบราว์เซอร์บล็อกหน้าต่างล็อกอิน — กรุณาอนุญาตป๊อปอัพสำหรับเว็บนี้แล้วลองใหม่ " +
-           "(ปกติมีไอคอนแจ้งเตือนขึ้นที่แถบที่อยู่ด้านบน กดอนุญาตแล้วกดปุ่มนี้อีกครั้ง)";
+           "(ปกติมีไอคอนแจ้งเตือนขึ้นที่แถบที่อยู่ด้านบน กดอนุญาตแล้วกดปุ่มนี้อีกครั้ง)" + tag;
   }
-  if (code.includes("popup-closed-by-user") || code.includes("cancelled-popup-request")) {
-    return null; // ผู้ใช้ปิดหน้าต่าง Google เอง ไม่ใช่ error ที่ต้องโชว์
+  if (code.includes("unauthorized-domain")) {
+    return "โดเมนนี้ยังไม่ได้รับอนุญาตให้ล็อกอินด้วย Google " +
+           "(ต้องเพิ่มใน Firebase Console > Authentication > Settings > Authorized domains ก่อน)" + tag;
   }
-  return "เข้าสู่ระบบไม่สำเร็จ กรุณาลองใหม่";
+  if (code.includes("operation-not-allowed")) {
+    return "ยังไม่ได้เปิด Google เป็นช่องทางล็อกอิน " +
+           "(Firebase Console > Authentication > Sign-in method > เปิด Google)" + tag;
+  }
+  if (code.includes("account-exists-with-different-credential")) {
+    return "อีเมลนี้เคยสมัครด้วยวิธีอื่นไว้แล้ว กรุณาล็อกอินด้วยวิธีเดิม" + tag;
+  }
+  if (code.includes("too-many-requests")) {
+    return "ลองผิดหลายครั้งเกินไป กรุณารอสักครู่แล้วลองใหม่" + tag;
+  }
+  if (code.includes("network-request-failed")) {
+    return "ต่ออินเทอร์เน็ตไม่ได้ กรุณาลองใหม่" + tag;
+  }
+  if (code.includes("invalid-credential") || code.includes("wrong-password") || code.includes("user-not-found")) {
+    return context === "google"
+      ? "Google ปฏิเสธการล็อกอิน — มักเกิดจากตั้งค่า Google provider ใน Firebase Console ไม่ครบ" + tag
+      : "อีเมลหรือรหัสผ่านไม่ถูกต้อง — ถ้าบัญชีนี้สมัครด้วย Google ไว้ จะไม่มีรหัสผ่านให้ใช้เลย " +
+        "ต้องกดปุ่ม \"เข้าสู่ระบบด้วย Google\" ด้านบนแทน" + tag;
+  }
+  return "เข้าสู่ระบบไม่สำเร็จ กรุณาลองใหม่" + tag;
 }
 
 // ---------- หน้าจอ ----------
@@ -85,8 +99,9 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
-function showLoginError(err) {
-  const msg = friendlyAuthError(err);
+function showLoginError(err, context) {
+  console.error("login failed:", err);  // เก็บ error เต็มๆ ไว้ใน console เผื่อต้องวินิจฉัยเพิ่ม
+  const msg = friendlyAuthError(err, context);
   if (!msg) return;
   loginError.textContent = msg;
   loginError.hidden = false;
@@ -100,7 +115,7 @@ loginForm.addEventListener("submit", async (e) => {
   try {
     await signInWithEmailAndPassword(auth, email, password);
   } catch (err) {
-    showLoginError(err);
+    showLoginError(err, "password");
   }
 });
 
@@ -113,8 +128,7 @@ document.getElementById("btn-google-login").addEventListener("click", async () =
   try {
     await signInWithPopup(auth, new GoogleAuthProvider());
   } catch (err) {
-    console.error(err);
-    showLoginError(err);
+    showLoginError(err, "google");
   }
 });
 

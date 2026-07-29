@@ -14,6 +14,10 @@
     <div class="login-card">
       <h1>🔒 จัดการสมาชิกโปร</h1>
       <p class="muted">8Hrs Posture Monitor — สำหรับผู้ดูแลเท่านั้น</p>
+      <!-- Google มาก่อนและเป็นปุ่มหลัก เพราะบัญชีผู้ดูแลผูกกับ Google (ไม่มีรหัสผ่าน) —
+           ตอนที่ฟอร์มรหัสผ่านอยู่ข้างบน ทำให้กรอกผิดช่องแล้วขึ้น "รหัสผ่านไม่ถูกต้อง" งงกันมาแล้ว -->
+      <button id="btn-google-login" class="btn btn-primary btn-block">🔵 เข้าสู่ระบบด้วย Google</button>
+      <div class="login-divider"><span>หรือใช้รหัสผ่าน</span></div>
       <form id="login-form">
         <label>อีเมล
           <input type="email" id="login-email" autocomplete="username" required>
@@ -21,10 +25,11 @@
         <label>รหัสผ่าน
           <input type="password" id="login-password" autocomplete="current-password" required>
         </label>
-        <button type="submit" class="btn btn-primary btn-block">เข้าสู่ระบบ</button>
+        <button type="submit" class="btn btn-ghost btn-block">เข้าสู่ระบบด้วยรหัสผ่าน</button>
       </form>
-      <div class="login-divider"><span>หรือ</span></div>
-      <button id="btn-google-login" class="btn btn-ghost btn-block">🔵 เข้าสู่ระบบด้วย Google</button>
+      <p class="muted" style="margin-top:12px">
+        ถ้าบัญชีผู้ดูแลสมัครไว้ด้วย Google จะ<b>ไม่มีรหัสผ่าน</b>ให้ใช้ — ต้องกดปุ่ม Google ด้านบนเท่านั้น
+      </p>
       <p id="login-error" class="error-text" hidden></p>
     </div>
   </section>
