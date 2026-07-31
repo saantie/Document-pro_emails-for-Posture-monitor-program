@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>นโยบายความเป็นส่วนตัว — 8Hrs Posture Monitor</title>
+<style>
+  :root {
+    --bg: #F8FAFC; --card: #FFFFFF; --text: #1E293B; --muted: #64748B;
+    --border: #E2E8F0; --accent: #16A34A; --highlight: #F0FDF4;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px 16px;
+    font-family: "Segoe UI", "Sarabun", -apple-system, sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.75;
+  }
+  main { max-width: 760px; margin: 0 auto; }
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 32px; margin-bottom: 20px;
+  }
+  h1 { font-size: 1.6em; margin: 0 0 4px; }
+  h2 { font-size: 1.15em; margin: 28px 0 8px; padding-top: 4px; }
+  h2:first-of-type { margin-top: 8px; }
+  .muted { color: var(--muted); font-size: 0.9em; }
+  .key {
+    background: var(--highlight); border-left: 4px solid var(--accent);
+    padding: 14px 18px; border-radius: 6px; margin: 16px 0;
+  }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.94em; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { background: #F1F5F9; color: var(--muted); font-weight: 600; }
+  ul { padding-left: 22px; }
+  li { margin: 6px 0; }
+  a { color: var(--accent); }
+  .lang-sep { text-align: center; color: var(--muted); margin: 32px 0 8px; font-size: 0.85em; letter-spacing: .08em; }
+  @media (max-width: 640px) { .card { padding: 20px; } body { padding: 16px 10px; } }
+</style>
+</head>
+<body>
+<main>
+
+  <div class="card">
+    <h1>นโยบายความเป็นส่วนตัว</h1>
+    <p class="muted">8Hrs Posture Monitor · ปรับปรุงล่าสุด 31 กรกฎาคม 2569</p>
+
+    <div class="key">
+      <b>สรุปสั้นที่สุด:</b> ภาพจากกล้องและข้อมูลท่านั่งของคุณ<b>ไม่เคยออกจากเครื่อง</b>
+      ประมวลผลในเครื่องทั้งหมด สิ่งเดียวที่ส่งออกคืออีเมลและสถานะสมาชิก และเฉพาะเมื่อคุณเลือกเข้าสู่ระบบเท่านั้น
+    </div>
+
+    <h2>1. ข้อมูลที่ประมวลผลในเครื่องเท่านั้น (ไม่ส่งออกไปไหน)</h2>
+    <ul>
+      <li><b>ภาพจากกล้อง</b> — ใช้ตรวจจับตำแหน่งไหล่และตาแบบเรียลไทม์ <b>ไม่มีการบันทึกเป็นไฟล์ ไม่มีการส่งขึ้นเซิร์ฟเวอร์ใดๆ</b> ภาพแต่ละเฟรมถูกทิ้งทันทีหลังประมวลผลเสร็จ</li>
+      <li><b>สถิติท่านั่งรายวัน</b> — จำนวนวินาทีที่ท่านั่งดี/เตือน/แย่ในแต่ละวัน เก็บในไฟล์ฐานข้อมูลบนเครื่องคุณที่
+        <code>%LOCALAPPDATA%\PostureMonitor\posture_history.db</code></li>
+      <li><b>ค่าตั้งค่าต่างๆ</b> — ค่าปรับเทียบท่านั่ง ค่าซูมกล้อง กล้องที่เลือก เก็บบนเครื่องเช่นกัน</li>
+    </ul>
+    <p>ข้อมูลทั้งหมดในหัวข้อนี้ลบได้เองโดยลบโฟลเดอร์ <code>%LOCALAPPDATA%\PostureMonitor</code> หรือถอนการติดตั้งโปรแกรม</p>
+
+    <h2>2. ข้อมูลที่ส่งออกจากเครื่อง (เฉพาะเมื่อเข้าสู่ระบบ)</h2>
+    <p>โปรแกรมใช้งานฟีเจอร์พื้นฐานได้โดย<b>ไม่ต้องเข้าสู่ระบบ</b> ซึ่งกรณีนั้นจะไม่มีข้อมูลใดออกจากเครื่องเลย
+       หากคุณเลือกสมัครสมาชิกหรือเข้าสู่ระบบ จะมีการส่งข้อมูลต่อไปนี้:</p>
+    <table>
+      <tr><th>ข้อมูล</th><th>ส่งไปที่ไหน</th><th>เพื่ออะไร</th></tr>
+      <tr><td>อีเมล และรหัสผ่าน (หรือการยืนยันตัวตนผ่านบัญชี Google)</td><td>Firebase Authentication (Google LLC)</td><td>ยืนยันตัวตนเพื่อเข้าสู่ระบบ</td></tr>
+      <tr><td>อีเมล และวันหมดอายุสมาชิก</td><td>Cloud Firestore (Google LLC)</td><td>ตรวจสอบสิทธิ์สมาชิกแบบโปร</td></tr>
+    </table>
+    <p class="muted">เราไม่ส่งภาพ ไม่ส่งข้อมูลท่านั่ง ไม่ส่งสถิติการใช้งาน และไม่มีระบบติดตามพฤติกรรมหรือโฆษณาใดๆ ในโปรแกรม</p>
+
+    <h2>3. การชำระเงิน</h2>
+    <p>การชำระเงินทำนอกตัวโปรแกรม ผ่านการโอนพร้อมเพย์หรือลิงก์ PayPal.Me
+       <b>โปรแกรมไม่เก็บและไม่ประมวลผลข้อมูลบัตรเครดิตหรือข้อมูลทางการเงินใดๆ ทั้งสิ้น</b>
+       สิ่งเดียวที่ผู้ดูแลได้รับคืออีเมลที่คุณแจ้งมาเพื่อเปิดสิทธิ์สมาชิกให้</p>
+
+    <h2>4. การเก็บรักษาข้อมูลเข้าสู่ระบบ</h2>
+    <p>ข้อมูลสำหรับเข้าสู่ระบบอัตโนมัติถูกเก็บไว้บนเครื่องคุณและ<b>เข้ารหัสด้วยระบบ DPAPI ของ Windows</b>
+       ซึ่งผูกกุญแจกับบัญชี Windows ของคุณ หากมีผู้คัดลอกไฟล์นี้ไปยังเครื่องอื่นจะใช้งานไม่ได้
+       <b>เราไม่เก็บรหัสผ่านของคุณลงไฟล์ใดๆ</b></p>
+
+    <h2>5. สิทธิ์ของคุณ</h2>
+    <ul>
+      <li><b>ใช้งานโดยไม่ระบุตัวตน</b> — ไม่เข้าสู่ระบบก็ใช้ฟีเจอร์พื้นฐานได้ครบ</li>
+      <li><b>ขอลบบัญชีและข้อมูล</b> — ติดต่อทางอีเมลด้านล่าง เราจะลบบัญชีและข้อมูลสมาชิกของคุณออกจาก Firebase</li>
+      <li><b>ปิดกล้องเมื่อไหร่ก็ได้</b> — ผ่าน Windows Settings &gt; Privacy &amp; security &gt; Camera</li>
+      <li><b>ลบข้อมูลในเครื่อง</b> — ลบโฟลเดอร์ <code>%LOCALAPPDATA%\PostureMonitor</code></li>
+    </ul>
+
+    <h2>6. เด็กและเยาวชน</h2>
+    <p>โปรแกรมนี้ไม่ได้ออกแบบมาสำหรับเด็กอายุต่ำกว่า 13 ปี และเราไม่เก็บข้อมูลจากเด็กโดยเจตนา</p>
+
+    <h2>7. การเปลี่ยนแปลงนโยบาย</h2>
+    <p>หากมีการแก้ไข จะปรับปรุงวันที่ด้านบนหน้านี้ การเปลี่ยนแปลงที่กระทบข้อมูลของคุณอย่างมีนัยสำคัญจะแจ้งในตัวโปรแกรมด้วย</p>
+
+    <h2>8. ติดต่อ</h2>
+    <p>อีเมล: <a href="mailto:saantie@gmail.com">saantie@gmail.com</a><br>
+       LINE: <code>@341jvvzy</code></p>
+  </div>
+
+  <div class="lang-sep">— ENGLISH —</div>
+
+  <div class="card">
+    <h1>Privacy Policy</h1>
+    <p class="muted">8Hrs Posture Monitor · Last updated 31 July 2026</p>
+
+    <div class="key">
+      <b>In short:</b> Your camera images and posture data <b>never leave your computer</b>.
+      Everything is processed locally. The only data sent out is your email address and membership
+      status, and only if you choose to sign in.
+    </div>
+
+    <h2>1. Processed locally only (never transmitted)</h2>
+    <ul>
+      <li><b>Camera images</b> — used in real time to detect shoulder and eye positions.
+        <b>Never saved to disk, never uploaded anywhere.</b> Each frame is discarded immediately after processing.</li>
+      <li><b>Daily posture statistics</b> — seconds spent in good/warning/bad posture per day, stored locally at
+        <code>%LOCALAPPDATA%\PostureMonitor\posture_history.db</code></li>
+      <li><b>Settings</b> — posture calibration, camera zoom, selected camera. Also stored locally.</li>
+    </ul>
+    <p>You can delete all of the above by removing the <code>%LOCALAPPDATA%\PostureMonitor</code> folder or uninstalling the app.</p>
+
+    <h2>2. Data sent off your device (only when signed in)</h2>
+    <p>The app's core features work <b>without signing in</b>, in which case no data leaves your device at all.
+       If you choose to create an account or sign in, the following is transmitted:</p>
+    <table>
+      <tr><th>Data</th><th>Sent to</th><th>Purpose</th></tr>
+      <tr><td>Email address and password (or Google account authentication)</td><td>Firebase Authentication (Google LLC)</td><td>Account authentication</td></tr>
+      <tr><td>Email address and membership expiry date</td><td>Cloud Firestore (Google LLC)</td><td>Verifying Pro membership</td></tr>
+    </table>
+    <p class="muted">We do not transmit images, posture data, or usage analytics. The app contains no tracking and no advertising.</p>
+
+    <h2>3. Payments</h2>
+    <p>Payments are handled outside the app via PromptPay bank transfer or a PayPal.Me link.
+       <b>The app never collects or processes credit card or any financial information.</b>
+       The only thing we receive is the email address you send us so we can activate your membership.</p>
+
+    <h2>4. How sign-in data is stored</h2>
+    <p>Your automatic sign-in token is stored locally and <b>encrypted using Windows DPAPI</b>, which ties the
+       encryption key to your Windows account. If someone copies this file to another machine it will not work.
+       <b>We never write your password to any file.</b></p>
+
+    <h2>5. Your rights</h2>
+    <ul>
+      <li><b>Use anonymously</b> — all core features work without signing in.</li>
+      <li><b>Request account and data deletion</b> — contact us at the email below and we will delete your account and membership data from Firebase.</li>
+      <li><b>Revoke camera access anytime</b> — via Windows Settings &gt; Privacy &amp; security &gt; Camera.</li>
+      <li><b>Delete local data</b> — remove the <code>%LOCALAPPDATA%\PostureMonitor</code> folder.</li>
+    </ul>
+
+    <h2>6. Children</h2>
+    <p>This app is not directed at children under 13, and we do not knowingly collect data from children.</p>
+
+    <h2>7. Changes to this policy</h2>
+    <p>If this policy changes, the date at the top of this page will be updated. Changes that materially affect
+       your data will also be announced inside the app.</p>
+
+    <h2>8. Contact</h2>
+    <p>Email: <a href="mailto:saantie@gmail.com">saantie@gmail.com</a><br>
+       LINE: <code>@341jvvzy</code></p>
+  </div>
+
+</main>
+</body>
+</html>
