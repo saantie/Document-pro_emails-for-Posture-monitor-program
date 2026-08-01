@@ -9,7 +9,7 @@ import {
   GoogleAuthProvider, signInWithPopup,
 } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
 import {
-  getFirestore, collection, getDocs, doc, setDoc, deleteDoc, serverTimestamp, Timestamp,
+  getFirestore, collection, getDocs, getDoc, doc, setDoc, deleteDoc, serverTimestamp, Timestamp,
 } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
 
 // ต้องตรงกับ firebase_config.json ของแอป (Project settings > General > Your apps ใน Firebase Console)
@@ -162,13 +162,45 @@ async function loadCustomers() {
     tbody.innerHTML = "";
     loadErrorEl.hidden = false;
     if (err && err.code === "permission-denied") {
-      loadErrorEl.textContent =
-        "ไม่มีสิทธิ์เข้าถึงข้อมูล — บัญชีนี้ไม่ได้ตั้งเป็นผู้ดูแลใน Firestore Rules " +
-        "(เช็ค isAdmin() ใน firestore.rules ว่าตรงกับอีเมลนี้หรือไม่)";
+      // อาการที่เจอบ่อย: ตอน collection ยังว่างอยู่เข้าได้ปกติ พอมี document แล้วเข้าไม่ได้
+      // เพราะ query บน collection ว่างไม่มี document ให้ประเมิน rule เลยผ่านไปเฉยๆ
+      // ปัญหาจริงคือ isAdmin() ไม่ตรง ซึ่งซ่อนอยู่ตั้งแต่แรก — จึงต้องโชว์อีเมลจริงให้เทียบได้
+      await showPermissionDiagnosis();
     } else {
-      loadErrorEl.textContent = "โหลดข้อมูลไม่สำเร็จ กรุณาลองกด รีเฟรช อีกครั้ง";
+      loadErrorEl.textContent = "โหลดข้อมูลไม่สำเร็จ กรุณาลองกด รีเฟรช อีกครั้ง " +
+        `(${(err && err.code) || "ไม่ทราบสาเหตุ"})`;
     }
   }
+}
+
+/** วินิจฉัยว่าทำไมอ่านข้อมูลไม่ได้ แล้วแสดงผลแบบที่เอาไปแก้ต่อได้ทันที */
+async function showPermissionDiagnosis() {
+  const user = auth.currentUser;
+  const email = user ? user.email : "(ยังไม่ได้เข้าสู่ระบบ)";
+
+  // แยกให้ออกว่า "อ่านทั้ง collection ไม่ได้" กับ "อ่าน document ของตัวเองก็ยังไม่ได้"
+  // ถ้าอ่านของตัวเองได้แต่ทั้ง collection ไม่ได้ = ล็อกอินถูกคน แต่ isAdmin() ไม่ผ่าน
+  let ownDocReadable = false;
+  if (user && user.email) {
+    try {
+      await getDoc(doc(db, "pro_emails", user.email.toLowerCase()));
+      ownDocReadable = true;
+    } catch (e) { /* อ่านของตัวเองก็ไม่ได้ */ }
+  }
+
+  const parts = [
+    `ไม่มีสิทธิ์อ่านข้อมูล — บัญชีที่เข้าสู่ระบบอยู่คือ  "${email}"`,
+    "",
+    `Firestore Rules อนุญาตเฉพาะอีเมลที่ตรงกับ isAdmin() เป๊ะๆ (ตัวพิมพ์เล็ก/ใหญ่และช่องว่างต้องตรงด้วย)`,
+    ownDocReadable
+      ? "• อ่าน document ของอีเมลตัวเองได้ → แปลว่าล็อกอินถูกบัญชีแล้ว แต่ isAdmin() ไม่ผ่าน"
+      : "• อ่าน document ของอีเมลตัวเองก็ไม่ได้ → rules ที่ deploy อยู่อาจไม่ใช่เวอร์ชันล่าสุด",
+    "",
+    "วิธีแก้: Firebase Console → Firestore Database → Rules แล้วดูว่าบรรทัด isAdmin() " +
+    `เขียนอีเมลตรงกับ "${email}" หรือไม่`,
+  ];
+  loadErrorEl.style.whiteSpace = "pre-line";
+  loadErrorEl.textContent = parts.join("\n");
 }
 
 function daysRemaining(expiresAt) {
@@ -327,8 +359,9 @@ editForm.addEventListener("submit", async (e) => {
   } catch (err) {
     console.error(err);
     modalError.textContent = err && err.code === "permission-denied"
-      ? "ไม่มีสิทธิ์บันทึกข้อมูล — เช็ค Firestore Rules ว่าตั้งอีเมลผู้ดูแลถูกต้องหรือไม่"
-      : "บันทึกไม่สำเร็จ กรุณาลองใหม่";
+      ? `ไม่มีสิทธิ์บันทึกข้อมูล — บัญชีที่เข้าสู่ระบบคือ "${auth.currentUser ? auth.currentUser.email : "?"}" ` +
+        "ซึ่งไม่ตรงกับอีเมลใน isAdmin() ของ Firestore Rules"
+      : `บันทึกไม่สำเร็จ กรุณาลองใหม่ (${(err && err.code) || "ไม่ทราบสาเหตุ"})`;
     modalError.hidden = false;
   } finally {
     submitBtn.disabled = false;
